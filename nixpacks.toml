@@ -1,5 +1,15 @@
 [phases.setup]
-nixPkgs = ["php82", "php82Extensions.pdo_mysql", "php82Extensions.mysqli", "apacheHttpd"]
+nixPkgs = [
+  "php82",
+  "php82Extensions.mysqli",
+  "php82Extensions.pdo_mysql",
+  "apacheHttpd"
+]
+
+[phases.build]
+cmds = [
+  "php -m | grep mysqli"
+]
 
 [start]
 cmd = "apachectl -D FOREGROUND"
