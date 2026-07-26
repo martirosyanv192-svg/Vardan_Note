@@ -1,11 +1,10 @@
 FROM php:8.2-apache
 
-# Ակտիվացնում և տեղադրում ենք mysqli-ն ու բազայի մոդուլները
+# Տեղադրում ենք բազայի համար անհրաժեշտ mysqli մոդուլները
 RUN docker-php-ext-install mysqli pdo pdo_mysql
-RUN docker-php-ext-enable mysqli
-
-# Ապահովում ենք URL-ների վերագրառումը (URL rewriting)
 RUN a2enmod rewrite
 
-# Բացում ենք պորտը
-EXPOSE 80
+# Փոխում ենք Apache-ի լռելյայն 80 պորտը Railway-ի տրամադրած PORT-ին
+RUN sed -i "s/80/\${PORT}/g" /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
+
+EXPOSE ${PORT}
