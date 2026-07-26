@@ -1,8 +1,4 @@
-[phases.setup]
-nixPkgs = ["php82", "php82Extensions.mysqli", "php82Extensions.pdo_mysql"]
-
-[phases.build]
-cmds = []
-
-[start]
-cmd = "apache2-foreground"
+FROM php:8.2-apache
+RUN docker-php-ext-install mysqli pdo pdo_mysql
+RUN a2enmod rewrite
+COPY . /var/www/html/
