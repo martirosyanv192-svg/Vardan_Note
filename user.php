@@ -4,34 +4,48 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 class User {
-    private $host = "localhost";
-    private $db_login = "root";
-    private $db_password = "root"; // MAMP-ում լռելյայն գաղտնաբառը root է
-    private $db_name = "note_db";
+    private $host;
+    private $db_login;
+    private $db_password;
+    private $db_name;
+    private $db_port;
 
     public $connect;
 
     public function __construct() {
+        // Ստուգում ենք՝ արդյոք կան Railway-ի environment variables, թե ոչ
+        $this->host        = getenv('MYSQLHOST') ?: "localhost";
+        $this->db_login    = getenv('MYSQLUSER') ?: "root";
+        $this->db_password = getenv('MYSQLPASSWORD') !== false ? getenv('MYSQLPASSWORD') : "root"; // MAMP-ում լռելյայն root է
+        $this->db_name     = getenv('MYSQLDATABASE') ?: "note_db";
+        $this->db_port     = getenv('MYSQLPORT') ?: 3306;
+
+        // Փորձում ենք միանալ բազային (հաշվի առնելով նաև պորտը)
         $this->connect = @mysqli_connect(
             $this->host,
             $this->db_login,
             $this->db_password,
-            $this->db_name
+            $this->db_name,
+            (int)$this->db_port
         );
 
         if (!$this->connect) {
-            // Եթե MAMP-ի root/root գաղտնաբառով չմիանա, փորձում ենք դատարկ գաղտնաբառով
+            // Եթե MAMP-ի root/root գաղտնաբառով չմիանա, փորձում ենք դատարկ գաղտնաբառով (տեղային թեստերի համար)
             $this->connect = @mysqli_connect(
-                $this->host,
-                $this->db_login,
+                "localhost",
+                "root",
                 "",
-                $this->db_name
+                $this->db_name,
+                3306
             );
         }
 
         if (!$this->connect) {
             die("<div class='alert alert-danger text-center m-3'>Տվյալների բազայի միացման սխալ: " . mysqli_connect_error() . "</div>");
         }
+
+        // Սահմանում ենք UTF-8 կոդավորումը հայերեն տառերի ճիշտ աշխատանքի համար
+        mysqli_set_charset($this->connect, "utf8mb4");
     }
 
     // Գրանցման ֆունկցիա
