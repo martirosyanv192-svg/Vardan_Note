@@ -13,7 +13,7 @@ class User {
     public $connect;
 
     public function __construct() {
-        // Railway-ի կամ տեղային բազայի տվյալների ստացում
+        // Railway-ի կամ տեղային բազայի տվյալների ավտոմատ ստացում
         $this->host        = getenv('MYSQLHOST') ?: (getenv('DB_HOST') ?: "localhost");
         $this->db_login    = getenv('MYSQLUSER') ?: (getenv('DB_USER') ?: "root");
         $this->db_password = getenv('MYSQLPASSWORD') !== false ? getenv('MYSQLPASSWORD') : (getenv('DB_PASSWORD') !== false ? getenv('DB_PASSWORD') : "root");
@@ -21,7 +21,7 @@ class User {
         $this->db_port     = getenv('MYSQLPORT') ?: (getenv('DB_PORT') ?: 3306);
 
         try {
-            // Փորձում ենք միանալ տվյալների բազային PDO-ով
+            // Միանում ենք բազային PDO-ով (որը միշտ հասանելի է PHP-ում)
             $dsn = "mysql:host={$this->host};port={$this->db_port};dbname={$this->db_name};charset=utf8mb4";
             $this->connect = new PDO($dsn, $this->db_login, $this->db_password);
             $this->connect->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -38,7 +38,7 @@ class User {
                 } catch (PDOException $e3) {
                     die("<div style='color: red; padding: 20px; font-family: sans-serif;'>
                            <h3>Տվյալների բազայի միացման սխալ (PDO):</h3>
-                           <p>" . $e->getMessage() . "</p>
+                           <p>" . htmlspecialchars($e->getMessage()) . "</p>
                            <hr>
                            <small>Ստուգեք, արդյոք Railway-ում MySQL սերվերը միացված է և Variables-ները ճիշտ են փոխանցված։</small>
                          </div>");
@@ -47,7 +47,7 @@ class User {
         }
     }
 
-    // Գրանցման ֆունկցիա (PDO-ով)
+    // Գրանցման ֆունկցիա (PDO)
     public function Register($firstName, $lastName, $email, $password) {
         $firstName = trim($firstName);
         $lastName  = trim($lastName);
@@ -75,11 +75,11 @@ class User {
                 return "<div class='alert alert-danger mb-3 py-2 small'>Գրանցման սխալ։</div>";
             }
         } catch (PDOException $e) {
-            return "<div class='alert alert-danger mb-3 py-2 small'>Բազայի սխալ: " . $e->getMessage() . "</div>";
+            return "<div class='alert alert-danger mb-3 py-2 small'>Բազայի սխալ: " . htmlspecialchars($e->getMessage()) . "</div>";
         }
     }
 
-    // Մուտքի ֆունկցիա (PDO-ով)
+    // Մուտքի ֆունկցիա (PDO)
     public function Login($email, $password) {
         $email = trim($email);
 
@@ -108,7 +108,7 @@ class User {
                 return "<div class='alert alert-danger mb-3 py-2 small'>Այս էլ. փոստով օգտատեր չի գտնվել։</div>";
             }
         } catch (PDOException $e) {
-            return "<div class='alert alert-danger mb-3 py-2 small'>Բազայի սխալ: " . $e->getMessage() . "</div>";
+            return "<div class='alert alert-danger mb-3 py-2 small'>Բազայի սխալ: " . htmlspecialchars($e->getMessage()) . "</div>";
         }
     }
 }
